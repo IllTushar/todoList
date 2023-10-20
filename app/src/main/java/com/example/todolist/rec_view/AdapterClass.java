@@ -21,7 +21,7 @@ public class AdapterClass extends RecyclerView.Adapter<AdapterClass.myViewHolder
     Context context;
    public interface OnItemClick{
          void itemClickListner(int id);
-         void updateList(int id);
+         void updateList(int id,String title,String comments);
      }
     OnItemClick onItemClick;
 
@@ -49,7 +49,7 @@ public class AdapterClass extends RecyclerView.Adapter<AdapterClass.myViewHolder
             @Override
             public void onClick(View view) {
                if (onItemClick!=null){
-                   onItemClick.updateList(list.get(position).getId());
+                   onItemClick.updateList(list.get(position).getId(),list.get(position).getTitle(),list.get(position).getComments());
                }
             }
         });

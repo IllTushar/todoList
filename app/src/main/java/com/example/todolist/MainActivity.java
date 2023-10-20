@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import java.util.*;
 
@@ -25,7 +26,9 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
     FloatingActionButton fb;
     RequestModel requestModel;
     private AlertDialog dialog;
-    AdapterClass adapterClass ;
+    AdapterClass adapterClass;
+
+
     @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +36,7 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
         setContentView(R.layout.activity_main);
         fb = findViewById(R.id.floatingbtn);
         recyclerView = findViewById(R.id.recycler_view);
-        requestModel=RequestModel.getRequestModel(MainActivity.this);
+        requestModel = RequestModel.getRequestModel(MainActivity.this);
 
         fb.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,34 +49,34 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
     }
 
 
-
-    private void callGetDataFunction(RequestModel requestModel)
-    {
-        ArrayList<ResponseModel>list = (ArrayList<ResponseModel>) requestModel.roomInterface().getAllData();
-        adapterClass= new AdapterClass(list,MainActivity.this,MainActivity.this);
+    private void callGetDataFunction(RequestModel requestModel) {
+        ArrayList<ResponseModel> list = (ArrayList<ResponseModel>) requestModel.roomInterface().getAllData();
+        adapterClass = new AdapterClass(list, MainActivity.this, MainActivity.this);
         recyclerView.setAdapter(adapterClass);
 
     }
 
     @SuppressLint("MissingInflatedId")
-    private void callFloatingButtonFunction(){
+    private void callFloatingButtonFunction() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.floating_dialog, null);
-        EditText title  = dialogView.findViewById(R.id.title);
+        EditText title = dialogView.findViewById(R.id.title);
         EditText comments = dialogView.findViewById(R.id.comments);
         Button yes = dialogView.findViewById(R.id.yes);
-        Button no  = dialogView.findViewById(R.id.no);
+        Button no = dialogView.findViewById(R.id.no);
         yes.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onClick(View view) {
-                String Title  = title.getText().toString().trim();
-                String Comments  =  comments.getText().toString().trim();
-                insertDataInsideTable(requestModel,Title,Comments);
-                dialog.dismiss();
-                callGetDataFunction(requestModel);
-                adapterClass.notifyDataSetChanged();
+                String Title = title.getText().toString().trim();
+                String Comments = comments.getText().toString().trim();
+                if (validation(Title,Comments)) {
+                    insertDataInsideTable(requestModel, Title, Comments);
+                    dialog.dismiss();
+                    callGetDataFunction(requestModel);
+                    adapterClass.notifyDataSetChanged();
+                }
             }
         });
         no.setOnClickListener(new View.OnClickListener() {
@@ -89,7 +92,8 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
 
     @SuppressLint("NotifyDataSetChanged")
     private void insertDataInsideTable(RequestModel requestModel, String title, String comments) {
-        ResponseModel responseModel = new ResponseModel(title,comments);
+
+        ResponseModel responseModel = new ResponseModel(title, comments);
         requestModel.roomInterface().insertTheEntity(responseModel);
         adapterClass.notifyItemInserted(adapterClass.getItemCount());
         adapterClass.notifyDataSetChanged();
@@ -125,27 +129,45 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
         dialog.show();
 
     }
+    private boolean validation(String title,String comments){
 
+        if (title.isEmpty()){
+            toast("Enter Title");
+            return false;
+        }
+        if (comments.isEmpty()) {
+            toast("Enter Comment");
+            return false;
+        }
+        return true;
+    }
+    private void toast(String message){
+        Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
+    }
     @Override
-    public void updateList(int id) {
+    public void updateList(int id, String Title, String Comments) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.floating_dialog, null);
-        EditText title  = dialogView.findViewById(R.id.title);
+        EditText title = dialogView.findViewById(R.id.title);
         EditText comments = dialogView.findViewById(R.id.comments);
         Button yes = dialogView.findViewById(R.id.yes);
-        Button no  = dialogView.findViewById(R.id.no);
+        Button no = dialogView.findViewById(R.id.no);
+        title.setText(Title);
+        comments.setText(Comments);
         yes.setOnClickListener(new View.OnClickListener() {
             @SuppressLint("NotifyDataSetChanged")
             @Override
             public void onClick(View view) {
-                String Title  = title.getText().toString().trim();
-                String Comments  =  comments.getText().toString().trim();
-                ResponseModel responseModel = new ResponseModel(id,Title,Comments);
-                requestModel.roomInterface().updateTheEntity(responseModel);
-                dialog.dismiss();
-                callGetDataFunction(requestModel);
-                adapterClass.notifyDataSetChanged();
+                String Title = title.getText().toString().trim();
+                String Comments = comments.getText().toString().trim();
+                if (validation(Title,Comments)) {
+                    ResponseModel responseModel = new ResponseModel(id, Title, Comments);
+                    requestModel.roomInterface().updateTheEntity(responseModel);
+                    dialog.dismiss();
+                    callGetDataFunction(requestModel);
+                    adapterClass.notifyDataSetChanged();
+                }
             }
         });
         no.setOnClickListener(new View.OnClickListener() {
