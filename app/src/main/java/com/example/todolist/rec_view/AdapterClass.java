@@ -1,9 +1,11 @@
 package com.example.todolist.rec_view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,11 +19,20 @@ import java.util.ArrayList;
 public class AdapterClass extends RecyclerView.Adapter<AdapterClass.myViewHolder> {
     ArrayList<ResponseModel> list;
     Context context;
+   public interface OnItemClick{
+         void itemClickListner(int id);
+         void updateList(int id);
+     }
+    OnItemClick onItemClick;
 
-    public AdapterClass(ArrayList<ResponseModel> list, Context context) {
+
+    public AdapterClass(ArrayList<ResponseModel> list, Context context,OnItemClick onItemClick) {
         this.list = list;
         this.context = context;
+        this.onItemClick =onItemClick;
     }
+
+
 
     @NonNull
     @Override
@@ -31,12 +42,25 @@ public class AdapterClass extends RecyclerView.Adapter<AdapterClass.myViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull myViewHolder holder, int position) {
-        ResponseModel model = list.get(position);
-        holder.bind(model);
-
+    public void onBindViewHolder(@NonNull myViewHolder holder, @SuppressLint("RecyclerView") int position) {
         holder.textView.setText(list.get(position).getTitle());
         holder.comments.setText(list.get(position).getComments());
+        holder.update.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               if (onItemClick!=null){
+                   onItemClick.updateList(list.get(position).getId());
+               }
+            }
+        });
+        holder.remove.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (onItemClick != null) {
+                    onItemClick.itemClickListner(list.get(position).getId());
+                }
+            }
+        });
     }
 
     @Override
@@ -47,17 +71,15 @@ public class AdapterClass extends RecyclerView.Adapter<AdapterClass.myViewHolder
     public class myViewHolder extends RecyclerView.ViewHolder {
         TextView textView;
         TextView comments;
+        ImageView update, remove;
 
         public myViewHolder(@NonNull View itemView) {
             super(itemView);
             textView = itemView.findViewById(R.id.title1);
             comments = itemView.findViewById(R.id.comments1);
-
+            update = itemView.findViewById(R.id.edit);
+            remove = itemView.findViewById(R.id.remove);
         }
 
-        public void bind(ResponseModel item) {
-            textView.setText(item.getTitle());
-            comments.setText(item.getComments());
-        }
     }
 }

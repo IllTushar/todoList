@@ -20,10 +20,15 @@ public class ResponseModel {
         this.comments = comments;
     }
 
+    @Ignore
     public ResponseModel(int id, String title, String comments) {
         this.id = id;
         this.title = title;
         this.comments = comments;
+    }
+
+    public ResponseModel(int id) {
+        this.id = id;
     }
 
     public int getId() {

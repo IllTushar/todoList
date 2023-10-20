@@ -14,6 +14,7 @@ public interface RoomInterface {
     @Update
     void updateTheEntity(ResponseModel responseModel);
 
+
     @Delete
     void deleteTheEntity(ResponseModel responseModel);
 
