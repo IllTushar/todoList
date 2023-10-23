@@ -9,12 +9,15 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.*;
 
+import com.example.todolist.Adapter.SpinnerAdapterClass;
 import com.example.todolist.Room.RequestModel;
 import com.example.todolist.Room.ResponseModel;
 
@@ -27,7 +30,8 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
     RequestModel requestModel;
     private AlertDialog dialog;
     AdapterClass adapterClass;
-
+    Spinner spinner;
+    ArrayList<ResponseModel> list;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -37,6 +41,8 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
         fb = findViewById(R.id.floatingbtn);
         recyclerView = findViewById(R.id.recycler_view);
         requestModel = RequestModel.getRequestModel(MainActivity.this);
+        spinner = findViewById(R.id.spinner);
+
 
         fb.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -44,16 +50,64 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
                 callFloatingButtonFunction();
             }
         });
-        callGetDataFunction(requestModel);
+        callGetDataFunction(list);
+        spinnerFunction(list);
 
     }
 
+    private void spinnerFunction(ArrayList<ResponseModel> list) {
+        ArrayList<String> list1 = new ArrayList<>();
+        list1.add("filter");
+        list1.add("Recent");
+        list1.add("Sequence");
+        SpinnerAdapterClass adapterClass1 = new SpinnerAdapterClass(list1, MainActivity.this);
+        spinner.setAdapter(adapterClass1);
 
-    private void callGetDataFunction(RequestModel requestModel) {
-        ArrayList<ResponseModel> list = (ArrayList<ResponseModel>) requestModel.roomInterface().getAllData();
-        adapterClass = new AdapterClass(list, MainActivity.this, MainActivity.this);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String selectedItem = (String) adapterView.getItemAtPosition(i);
+                ArrayList<ResponseModel> filterList = getData();
+                callFilterFunction(selectedItem, filterList);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+    }
+
+    private ArrayList<ResponseModel> getData() {
+        ArrayList<ResponseModel> listing = (ArrayList<ResponseModel>) requestModel.roomInterface().getAllData();
+        return listing;
+    }
+
+    private void callFilterFunction(String selectedItem, ArrayList<ResponseModel> list) {
+        ArrayList<ResponseModel> filterList = new ArrayList<>();
+        if (selectedItem.equals("Recent")) {
+            for (int i = list.size() - 1; i >= 0; i--) {
+                filterList.add(list.get(i));
+            }
+            spinnerFunctionData(filterList);
+        } else if (selectedItem.equals("Sequence")) {
+            for (int i =0;i<list.size();i++){
+                filterList.add(list.get(i));
+            }
+            spinnerFunctionData(filterList);
+        }
+
+    }
+
+    private void spinnerFunctionData(ArrayList<ResponseModel> filtering) {
+        adapterClass = new AdapterClass(filtering, MainActivity.this, MainActivity.this);
         recyclerView.setAdapter(adapterClass);
+    }
 
+    private void callGetDataFunction(ArrayList<ResponseModel> filterList) {
+        filterList = (ArrayList<ResponseModel>) requestModel.roomInterface().getAllData();
+        adapterClass = new AdapterClass(filterList, MainActivity.this, MainActivity.this);
+        recyclerView.setAdapter(adapterClass);
     }
 
     @SuppressLint("MissingInflatedId")
@@ -71,10 +125,10 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
             public void onClick(View view) {
                 String Title = title.getText().toString().trim();
                 String Comments = comments.getText().toString().trim();
-                if (validation(Title,Comments)) {
+                if (validation(Title, Comments)) {
                     insertDataInsideTable(requestModel, Title, Comments);
                     dialog.dismiss();
-                    callGetDataFunction(requestModel);
+                    callGetDataFunction(list);
                     adapterClass.notifyDataSetChanged();
                 }
             }
@@ -113,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
                         // You can add your action here
                         ResponseModel responseModel = new ResponseModel(id);
                         requestModel.roomInterface().deleteTheEntity(responseModel);
-                        callGetDataFunction(requestModel);
+                        callGetDataFunction(list);
                         dialog.dismiss();
                     }
                 })
@@ -129,9 +183,10 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
         dialog.show();
 
     }
-    private boolean validation(String title,String comments){
 
-        if (title.isEmpty()){
+    private boolean validation(String title, String comments) {
+
+        if (title.isEmpty()) {
             toast("Enter Title");
             return false;
         }
@@ -141,9 +196,11 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
         }
         return true;
     }
-    private void toast(String message){
+
+    private void toast(String message) {
         Toast.makeText(MainActivity.this, message, Toast.LENGTH_SHORT).show();
     }
+
     @Override
     public void updateList(int id, String Title, String Comments) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -161,11 +218,11 @@ public class MainActivity extends AppCompatActivity implements AdapterClass.OnIt
             public void onClick(View view) {
                 String Title = title.getText().toString().trim();
                 String Comments = comments.getText().toString().trim();
-                if (validation(Title,Comments)) {
+                if (validation(Title, Comments)) {
                     ResponseModel responseModel = new ResponseModel(id, Title, Comments);
                     requestModel.roomInterface().updateTheEntity(responseModel);
                     dialog.dismiss();
-                    callGetDataFunction(requestModel);
+                    callGetDataFunction(list);
                     adapterClass.notifyDataSetChanged();
                 }
             }

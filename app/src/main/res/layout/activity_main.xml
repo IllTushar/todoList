@@ -16,6 +16,26 @@
             android:background="@color/purple_700"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+        <LinearLayout
+            android:padding="10dp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+           <ImageView
+               android:layout_gravity="center_vertical"
+               android:src="@drawable/baseline_filter_alt_24"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"/>
+            <LinearLayout
+                android:layout_gravity="center_vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+                <Spinner
+                    android:id="@+id/spinner"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
       <androidx.recyclerview.widget.RecyclerView
           android:id="@+id/recycler_view"
           app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
