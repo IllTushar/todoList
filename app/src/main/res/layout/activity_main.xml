@@ -32,6 +32,7 @@
                 android:layout_height="wrap_content">
                 <Spinner
                     android:id="@+id/spinner"
+                    android:dropDownVerticalOffset="30dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"/>
             </LinearLayout>
